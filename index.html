@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Equipment Hours • Single File</title>
+
+<!-- PWA essentials – CHANGE YOUR-REPO-NAME -->
+<link rel="manifest" href="/DAILY-HOURS-LMP-EQUIPMENT-PWA-APP/manifest.webmanifest">
+<meta name="theme-color" content="#5a9fff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EquipHours">
+<link rel="apple-touch-icon" href="/DAILY-HOURS-LMP-EQUIPMENT-PWA-APP/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/DAILY-HOURS-LMP-EQUIPMENT-PWA-APP/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/DAILY-HOURS-LMP-EQUIPMENT-PWA-APP/icons/icon-512.png">
+
+<style>
+  :root {
+    --bg: #0d1421;
+    --card: rgba(20,30,50,0.85);
+    --border: #2a3a5a;
+    --text: #e0e8ff;
+    --muted: #a0b0d0;
+    --accent: #5a9fff;
+    --green: #44cc88;
+    --yellow: #ffaa44;
+    --red: #ff5555;
+    --radius: 10px;
+  }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 16px;
+    min-height: 100vh;
+  }
+ h1, h2 { margin: 0.6em 0 0.4em; }
+  h2 { font-size: 1.4rem; color: #a0c0ff; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  th, td {
+    padding: 9px 10px;
+    border: 1px solid rgba(255,255,255,0.07);
+    text-align: center;
+  }
+  th {
+    background: rgba(30,45,70,0.9);
+    font-weight: 600;
+    color: #c0d0ff;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .sticky-left {
+    position: sticky;
+    left: 0;
+    background: rgba(18,28,48,0.95);
+    z-index: 3;
+    text-align: left;
+    font-weight: bold;
+    min-width: 180px;
+    border-right: 1px solid rgba(255,255,255,0.12);
+  }
+  .category-header td {
+    background: rgba(40, 60, 100, 0.9);
+    font-weight: bold;
+    text-align: left;
+    padding-left: 16px;
+    font-size: 1.05rem;
+    color: #aaccff;
+  }
+  input[type="number"], input[type="text"], input[type="date"], input[type="file"], select, input[type="password"] {
+    width: 100%;
+    max-width: 220px;
+    padding: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    border-radius: 6px;
+    box-sizing: border-box;
+  }
+  button {
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-danger  { background: #ff4444; color: white; }
+  .btn-copy    { background: #5566aa; color: white; font-size: 0.85rem; padding: 4px 8px; }
+  .btn-delete  { background: #992222; color: white; font-size: 0.9rem; padding: 4px 8px; margin-left: 8px; }
+  .total { font-weight: bold; color: #88ffaa; }
+  .flex { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  .sheet { overflow-x: auto; max-height: 520px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 24px; }
+
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-content {
+    background: #1a2538;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 420px;
+    border: 1px solid #3a506b;
+  }
+  .modal-header {
+    margin-bottom: 16px;
+    font-size: 1.3rem;
+  }
+  .modal-buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  /* LOGIN / REGISTER / RESET */
+  #loginRoot {
+    display: none;
+    min-height: calc(100vh - 32px);
+    align-items: center;
+    justify-content: center;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(20,30,50,0.92);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 22px 18px;
+    box-shadow: 0 10px 34px rgba(0,0,0,0.55);
+  }
+  .login-title {
+    font-size: 1.5rem;
+    margin: 0 0 6px;
+    color: #cfe0ff;
+  }
+  .login-subtitle {
+    margin: 0 0 16px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+  .login-row { margin: 12px 0; }
+  .login-row label {
+    display: block;
+    margin-bottom: 6px;
+    color: #c0d0ff;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .login-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 14px;
+  }
+  .login-error {
+    min-height: 20px;
+    margin-top: 10px;
+    color: #ffdd88;
+  }
+  .login-links {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  .link-btn {
+    background: transparent;
+    border: none;
+    color: #aaccff;
+    cursor: pointer;
+    padding: 0;
+    font-weight: 600;
+  }
+  .link-btn:hover { text-decoration: underline; }
+  .small-note {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 6px;
+    line-height: 1.35;
+  }
+  .auth-modal .modal-content { max-width: 520px; }
+  .auth-modal input[type="password"], .auth-modal input[type="text"] { max-width: 100%; }
+
+  #appRoot { display: none; }
+
+  /* Remove number spinners ONLY in month sheet */
+  #monthTable input[type="number"]{
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  #monthTable input[type="number"]::-webkit-outer-spin-button,
+  #monthTable input[type="number"]::-webkit-inner-spin-button{
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* ==========================================================
+     ✅ AUTOMATIC MOBILE ADAPTATION (CSS ONLY)
+     - Works on ALL mobile devices
+     - No JS changes
+     - No HTML changes
+     ========================================================== */
+
+  /* Safe-area (iOS notch / Android gesture bar) */
+  body {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    padding-left:  calc(16px + env(safe-area-inset-left));
+    padding-right: calc(16px + env(safe-area-inset-right));
+  }
+
+  /* Prevent horizontal overflow on small screens */
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Fix mobile browser height resizing (Chrome/Safari toolbars) */
+  #loginRoot {
+    min-height: calc(100dvh - 32px);
+  }
+
+  /* Improve touch interaction */
+  button, input, select, label {
+    touch-action: manipulation;
+  }
+
+  /* ---------- AUTOMATIC MOBILE LAYOUT ---------- */
+  @media (max-width: 900px) {
+
+    body {
+      padding: 10px;
+    }
+
+    .card {
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    /* Inputs: readable + no iOS zoom */
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    select {
+      width: 100%;
+      max-width: 100%;
+      padding: 12px;
+      font-size: 16px; /* prevents auto zoom */
+    }
+
+    /* Login buttons full width */
+    .login-actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+    .login-actions button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+    }
+
+    /* App toolbar stacks vertically */
+    #appRoot .flex {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+    #appRoot .flex > * {
+      width: 100%;
+    }
+
+    /* Tables scroll instead of shrinking */
+    .sheet {
+      max-height: 65dvh;
+      overflow-x: auto;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Keep table readable */
+    #dailyTable,
+    #monthTable {
+      min-width: 860px;
+    }
+
+    /* Keep table readable */
+    #dailyTable,
+    #monthTable {
+      min-width: 860px;
+    }
+
+    table {
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      padding: 7px;
+    }
+
+    .sticky-left {
+      min-width: 130px;
+      font-size: 0.85rem;
+    }
+
+    .btn-copy,
+    .btn-delete {
+      font-size: 0.8rem;
+      padding: 8px;
+    }
+  }
+
+  /* Very small phones */
+  @media (max-width: 600px) {
+    .modal-content {
+      width: 96%;
+      padding: 16px;
+      border-radius: 10px;
+    }
+    .modal-buttons {
+      flex-direction: column;
+      gap: 10px;
+    }
+    .modal-buttons button {
+      width: 100%;
+      padding: 12px;
+    }
+  }
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginRoot" class="flex">
+  <div class="login-card">
+    <h1 class="login-title">Sign in</h1>
+    <p class="login-subtitle">Please log in to access the Equipment Hours Log.</p>
+
+    <div class="login-row">
+      <label for="loginUser">Username</label>
+      <input type="text" id="loginUser" autocomplete="username" placeholder="Enter username" />
+    </div>
+
+    <div class="login-row">
+      <label for="loginPass">Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" placeholder="Enter password" />
+    </div>
+
+    <!-- ✅ Save password / Remember me -->
+    <div class="login-row" style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+      <input type="checkbox" id="rememberMe" style="width:auto; max-width:none;">
+      <label for="rememberMe" style="margin:0; font-weight:600; color:#c0d0ff;">Remember me</label>
+    </div>
+
+    <div class="login-actions">
+      <button class="btn-primary" id="btnLogin" type="button">Login</button>
+    </div>
+
+    <div class="login-links">
+      <button class="link-btn" id="btnOpenRegister" type="button">Register user</button>
+      <button class="link-btn" id="btnOpenReset" type="button">Forgot password?</button>
+    </div>
+
+    <div class="small-note">
+      Cloud mode: accounts and data are synced globally using Firebase.
+      Forgot password resets using your Recovery PIN.
+    </div>
+
+    <div id="loginError" class="login-error"></div>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div id="registerModal" class="modal auth-modal">
+  <div class="modal-content">
+    <div class="modal-header">Register New User</div>
+
+    <label>Username:</label>
+    <input type="text" id="regUser" placeholder="e.g. supervisor1" style="margin:8px 0 12px;" />
+
+    <label>Password:</label>
+    <input type="password" id="regPass" placeholder="Create a password" style="margin:8px 0 12px;" />
+
+    <label>Recovery PIN (4–8 digits):</label>
+    <input type="text" id="regPin" inputmode="numeric" placeholder="Used for password reset" style="margin:8px 0 6px;" />
+
+    <div class="small-note">
+      Keep the Recovery PIN safe. It’s required to reset your password.
+    </div>
+
+    <div id="regMsg" class="login-error" style="margin-top:12px;"></div>
+
+    <div class="modal-buttons">
+      <button id="btnCancelRegister" style="background:#444;" type="button">Cancel</button>
+      <button id="btnConfirmRegister" class="btn-primary" type="button">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESET MODAL -->
+<div id="resetModal" class="modal auth-modal">
+  <div class="modal-content">
+    <div class="modal-header">Reset Password</div>
+
+    <label>Username:</label>
+    <input type="text" id="resetUser" placeholder="Enter your username" style="margin:8px 0 12px;" />
+
+    <label>Recovery PIN:</label>
+    <input type="text" id="resetPin" inputmode="numeric" placeholder="Enter your PIN" style="margin:8px 0 12px;" />
+
+    <label>New Password:</label>
+    <input type="password" id="resetNewPass" placeholder="Enter a new password" style="margin:8px 0 6px;" />
+
+    <div id="resetMsg" class="login-error" style="margin-top:12px;"></div>
+
+    <div class="modal-buttons">
+      <button id="btnCancelReset" style="background:#444;" type="button">Cancel</button>
+      <button id="btnConfirmReset" class="btn-primary" type="button">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appRoot">
+  <div class="card">
+    <h1>Equipment Hours Log</h1>
+    <div class="flex" style="margin:16px 0; align-items:center; flex-wrap:wrap; gap:12px;">
+      <label><strong>Work Date:</strong></label>
+      <input type="date" id="workDate" value="2026-02-26" />
+      <button class=\"btn btn-primary\" id=\"btnInstallApp\" type=\"button\" style=\"display:none;\">Install App</button>
+      <button class="btn btn-primary" id="btnLoadDay">Load Day</button>
+      <button class="btn btn-primary" id="btnSaveDay">Save Day</button>
+      <button class="btn btn-primary" id="btnSaveAll">Save (Last Modified)</button>
+      <button class="btn btn-primary" id="btnAddEquipment">+ Add Equipment</button>
+      <button class="btn btn-primary" id="btnExportCSV">Export Monthly CSV</button>
+      <label class="btn btn-primary" style="cursor:pointer; margin:0;">
+        Import Monthly CSV
+        <input type="file" id="fileImportCSV" accept=".csv" style="display:none;" />
+      </label>
+
+      <!-- ✅ Sign Out -->
+      <button class="btn btn-danger" id="btnSignOut" type="button">Sign out</button>
+    </div>
+
+    <div id="toast" style="margin:12px 0; min-height:24px; color:#ffdd88;"></div>
+
+    <!-- Daily view -->
+    <div class="sheet">
+      <table id="dailyTable">
+        <thead>
+          <tr>
+            <th class="sticky-left">Equipment</th>
+            <th>Date</th>
+            <th>Hr Service</th>
+            <th>Hr Service Date</th>
+            <th>Initial</th>
+            <th>Final</th>
+            <th>Worked</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="dailyBody"></tbody>
+      </table>
+    </div>
+
+    <hr style="border-color:rgba(255,255,255,0.1); margin:24px 0;" />
+
+    <!-- Month grid -->
+    <div class="sheet">
+      <table id="monthTable">
+        <thead id="monthHead"></thead>
+        <tbody id="monthBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add Equipment Modal -->
+  <div id="addModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">Add New Equipment</div>
+      <label>Equipment Name:</label>
+      <input type="text" id="newEquipName" placeholder="e.g. gen6" style="margin:8px 0 16px;" />
+
+      <label>Category:</label>
+      <select id="newEquipCategory">
+        <option value="0">Generators</option>
+        <option value="1">Compressors & Lighting</option>
+      </select>
+
+      <div class="modal-buttons">
+        <button id="btnCancelAdd" style="background:#444;">Cancel</button>
+        <button id="btnConfirmAdd" class="btn-primary">Add Equipment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────────────────────────────────────
+       FIREBASE LOADER (Module CDN)
+       ──────────────────────────────────────────────── -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+    import {
+      getAuth, onAuthStateChanged,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword,
+      signOut, setPersistence,
+      browserLocalPersistence, browserSessionPersistence
+    } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-functions.js";
+
+    // ✅ REPLACE WITH YOUR FIREBASE CONFIG (include databaseURL)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgQbh6pp78iwXpH9qdQk1viEgy9zAmX6A",
+      authDomain: "equipment-hours-lmp.firebaseapp.com",
+      databaseURL: "https://equipment-hours-lmp-default-rtdb.firebaseio.com",
+      projectId: "equipment-hours-lmp",
+      storageBucket: "equipment-hours-lmp.firebasestorage.app",
+      messagingSenderId: "414868275365",
+      appId: "1:414868275365:web:467a98dc301e3585e98d4c",
+      measurementId: "G-EDRB8HRECD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const functions = getFunctions(app);
+
+    // Expose for non-module scripts
+    window.__fb = {
+      app, auth, db, functions,
+      api: {
+        ref, get, set,
+        onAuthStateChanged,
+        signInWithEmailAndPassword, createUserWithEmailAndPassword,
+        signOut,
+        setPersistence, browserLocalPersistence, browserSessionPersistence,
+        httpsCallable
+      }
+    };
+
+    window.dispatchEvent(new Event("firebase-ready"));
+  </script>
+
+  <script>
+  // ────────────────────────────────────────────────
+  // Data & Config
+  // ────────────────────────────────────────────────
+  const equipmentGroups = [
+    { name: "Generators", items: ["gen1", "gen2", "gen3", "gen4", "gen5"] },
+    { name: "Compressors & Lighting", items: ["comp", "tower light"] }
+  ];
+
+  /**
+   * monthData format (month-aware):
+   * {
+   *   "YYYY-MM": {
+   *      1: { "gen1": 5, "gen1_initial": 100, "gen1_final": 105, "gen1_serviceDate": "2026-02-01", ... },
+   *      2: { ... }
+   *   },
+   *   "YYYY-MM": { ... }
+   * }
+   */
+  let monthData = {};
+  let currentDate = "2026-02-26";
+
+  // ────────────────────────────────────────────────
+  // Persist App State (Firebase RTDB)
+  // ────────────────────────────────────────────────
+  const CLOUD_STATE_ROOT = "equipHoursState";
+  let _saveTimer = null;
+
+  function fb() { return window.__fb; }
+
+  function getUid() {
+    return fb()?.auth?.currentUser?.uid || null;
+  }
+
+  function cloudStateRef() {
+    const uid = getUid();
+    if (!uid) return null;
+    return fb().api.ref(fb().db, `${CLOUD_STATE_ROOT}/${uid}`);
+  }
+
+  function saveAppState(silent = false) {
+    const r = cloudStateRef();
+    if (!r) {
+      if (!silent) showToast("Not signed in", "#ffaa44");
+      return;
+    }
+
+    const state = { equipmentGroups, monthData, currentDate, updatedAt: Date.now() };
+
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(() => {
+      fb().api.set(r, state)
+        .then(() => { if (!silent) showToast("Saved to cloud", "#44cc88"); })
+        .catch(() => { if (!silent) showToast("Cloud save failed", "#ff5555"); });
+    }, 250);
+  }
+
+  async function loadAppState() {
+    const r = cloudStateRef();
+    if (!r) return false;
+
+    try {
+      const snap = await fb().api.get(r);
+      if (!snap.exists()) return false;
+
+      const state = snap.val();
+      if (!state || typeof state !== "object") return false;
+      if (!Array.isArray(state.equipmentGroups) || typeof state.monthData !== "object") return false;
+
+      equipmentGroups.length = 0;
+      state.equipmentGroups.forEach(g => {
+        if (g && typeof g.name === "string" && Array.isArray(g.items)) {
+          equipmentGroups.push({ name: g.name, items: [...g.items] });
+        }
+      });
+
+      monthData = state.monthData || {};
+      currentDate = state.currentDate || currentDate;
+
+      // Migration support (older builds stored monthData as { 1:{...}, 2:{...} } without monthKey)
+      const hasOldTopLevelDays = Object.keys(monthData).some(k => /^\d+$/.test(k));
+      if (hasOldTopLevelDays) {
+        const mk = (currentDate || "2000-01-01").slice(0, 7);
+        const newMD = {};
+        newMD[mk] = {};
+        Object.keys(monthData).forEach(k => {
+          if (/^\d+$/.test(k)) newMD[mk][k] = monthData[k];
+        });
+        Object.keys(monthData).forEach(k => {
+          if (/^\d{4}-\d{2}$/.test(k)) newMD[k] = monthData[k];
+        });
+        monthData = newMD;
+      }
+
+      const wd = document.getElementById("workDate");
+      if (wd && currentDate) wd.value = currentDate;
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // ────────────────────────────────────────────────
+  // Helpers
+  // ────────────────────────────────────────────────
+  function $(id) { return document.getElementById(id); }
+
+  function showToast(msg, color = "#88ffaa") {
+    const t = $("toast");
+    t.textContent = msg;
+    t.style.color = color;
+    t.style.opacity = "1";
+    setTimeout(() => t.style.opacity = "0", 3400);
+  }
+
+  function getFlatEquipments() {
+    return equipmentGroups.flatMap(g => g.items);
+  }
+
+  function getSelectedMonthInfo() {
+    const dateStr = $("workDate")?.value || currentDate || "";
+    const [y, m] = (dateStr.split("-").slice(0, 2)).map(n => parseInt(n, 10));
+
+    const year = (!isNaN(y) && y > 1900) ? y : new Date().getFullYear();
+    const month = (!isNaN(m) && m >= 1 && m <= 12) ? m : (new Date().getMonth() + 1);
+
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const monthName = new Date(year, month - 1, 1).toLocaleString("en", { month: "long" });
+    const monthKey = `${year}-${String(month).padStart(2, "0")}`;
+
+    return { year, month, monthKey, monthName, daysInMonth };
+  }
+
+  // ────────────────────────────────────────────────
+  // Month-aware storage helpers
+  // ────────────────────────────────────────────────
+  function monthKeyFromDate(dateStr) {
+    return (dateStr || "").slice(0, 7);
+  }
+
+  function dayNumFromDate(dateStr) {
+    return parseInt((dateStr || "").slice(8, 10), 10);
+  }
+
+  function ensureMonthStore(monthKey) {
+    if (!monthData[monthKey]) monthData[monthKey] = {};
+    return monthData[monthKey];
+  }
+
+  function getDayStore(dateStr) {
+    const mk = monthKeyFromDate(dateStr);
+    const dn = dayNumFromDate(dateStr);
+    const mStore = ensureMonthStore(mk);
+    if (!mStore[dn]) mStore[dn] = {};
+    return { monthKey: mk, dayNum: dn, store: mStore[dn], monthStore: mStore };
+  }
+
+  function nextISODate(dateStr) {
+    const d = new Date(dateStr + "T00:00:00");
+    d.setDate(d.getDate() + 1);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  // ────────────────────────────────────────────────
+  // CSV Export / Import
+  // ────────────────────────────────────────────────
+  function exportMonthlyCSV() {
+    const allEquip = getFlatEquipments();
+    if (allEquip.length === 0) {
+      showToast("No equipment to export", "#ffaa44");
+      return;
+    }
+
+    const { year, monthName, daysInMonth, monthKey } = getSelectedMonthInfo();
+    const DAYS = Math.min(daysInMonth, 31);
+    const mStore = ensureMonthStore(monthKey);
+
+    let headers = ["Equipment"];
+    for (let d = 1; d <= DAYS; d++) headers.push(String(d));
+    headers.push("Total", "HourLast", "Hr Service Date", "Hr Service");
+
+    const q = (v) => {
+      const s = (v ?? "").toString();
+      return (s.includes(",") || s.includes('"') || s.includes("\n"))
+        ? `"${s.replace(/"/g, '""')}"`
+        : s;
+    };
+
+    let csv = headers.join(",") + "\n";
+
+    allEquip.forEach(eq => {
+      let total = 0;
+      let hourLast = "";
+
+      const row = [q(eq)];
+
+      for (let d = 1; d <= DAYS; d++) {
+        const val = mStore[d]?.[eq];
+        if (val === undefined || val === null || val === "") {
+          row.push("");
+        } else {
+          const num = Number(val);
+          if (isNaN(num)) row.push("");
+          else {
+            row.push(num);
+            total += num;
+            hourLast = num;
+          }
+        }
+      }
+
+      row.push(total.toFixed(1));
+      row.push(hourLast === "" ? "" : Number(hourLast));
+
+      let latestServiceDate = "";
+      let latestServiceHours = "";
+
+      for (let d = 1; d <= DAYS; d++) {
+        const sd = mStore[d]?.[eq + "_serviceDate"];
+        if (sd && /^\d{4}-\d{2}-\d{2}$/.test(sd)) {
+          if (!latestServiceDate || sd > latestServiceDate) {
+            latestServiceDate = sd;
+            const sh = mStore[d]?.[eq + "_hrService"];
+            latestServiceHours = (sh === undefined || sh === null || sh === "") ? "" : Number(sh);
+          }
+        }
+      }
+
+      if (!latestServiceDate) {
+        const sd1 = mStore[1]?.[eq + "_serviceDate"];
+        const sh1 = mStore[1]?.[eq + "_hrService"];
+        if (sd1 && /^\d{4}-\d{2}-\d{2}$/.test(sd1)) latestServiceDate = sd1;
+        if (sh1 !== undefined && sh1 !== null && sh1 !== "" && !isNaN(Number(sh1))) latestServiceHours = Number(sh1);
+      }
+
+      row.push(q(latestServiceDate));
+      row.push(latestServiceHours === "" || isNaN(Number(latestServiceHours)) ? "" : Number(latestServiceHours));
+
+      csv += row.join(",") + "\n";
+    });
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `equipment-hours-${monthName.toLowerCase()}-${year}-${monthKey}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    showToast(`Exported for ${monthName} ${year}`, "#44cc88");
+  }
+
+  function importMonthlyCSV(file) {
+    if (!file) return;
+
+    const { monthName, year, daysInMonth, monthKey } = getSelectedMonthInfo();
+    const MAX_DAYS = Math.min(daysInMonth, 31);
+    const mStore = ensureMonthStore(monthKey);
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+      if (lines.length < 2) {
+        showToast("Empty or invalid CSV", "#ff5555");
+        return;
+      }
+
+      function splitCSV(line) {
+        return line
+          .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+          .map(s => s.trim().replace(/^"|"$/g, "").replace(/""/g, '"'));
+      }
+
+      function toISODate(raw) {
+        if (raw === undefined || raw === null) return "";
+        const s = String(raw).trim();
+        if (!s) return "";
+
+        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+        // Excel serial date
+        if (/^\d+(\.\d+)?$/.test(s)) {
+          const n = Number(s);
+          if (isNaN(n)) return "";
+          const dt = new Date(Date.UTC(1899, 11, 30));
+          dt.setUTCDate(dt.getUTCDate() + Math.floor(n));
+          const yyyy = dt.getUTCFullYear();
+          const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
+          const dd = String(dt.getUTCDate()).padStart(2, "0");
+          return `${yyyy}-${mm}-${dd}`;
+        }
+
+        // dd/mm/yyyy or mm/dd/yyyy
+        const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+        if (m) {
+          const a = parseInt(m[1], 10);
+          const b = parseInt(m[2], 10);
+          const y = parseInt(m[3], 10);
+          let day, month;
+          if (a > 12) { day = a; month = b; }
+          else if (b > 12) { month = a; day = b; }
+          else { day = a; month = b; }
+          if (month < 1 || month > 12 || day < 1 || day > 31) return "";
+          return `${y}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        }
+
+        return "";
+      }
+
+      const headers = splitCSV(lines[0]);
+      if ((headers[0] || "").toLowerCase() !== "equipment") {
+        showToast("CSV must start with 'Equipment' column", "#ffaa44");
+        return;
+      }
+
+      const dayCols = [];
+      for (let i = 1; i < headers.length; i++) {
+        const day = parseInt(headers[i], 10);
+        if (!isNaN(day) && day >= 1 && day <= MAX_DAYS) dayCols.push({ colIndex: i, day });
+      }
+
+      const norm = s => (s || "").toLowerCase().replace(/\s+/g, "");
+
+      const serviceDateCol = headers.findIndex(h => {
+        const x = norm(h);
+        return x === "servicedate" || x === "hrservicedate";
+      });
+      const serviceHoursCol = headers.findIndex(h => {
+        const x = norm(h);
+        return x === "servicehours" || x === "hrservice";
+      });
+
+      const hourLastCol = headers.findIndex(h => norm(h) === "hourlast");
+
+      const existing = new Set(getFlatEquipments());
+      let importedRows = 0;
+
+      for (let r = 1; r < lines.length; r++) {
+        const cols = splitCSV(lines[r]);
+        const eq = (cols[0] || "").trim();
+        if (!eq || !existing.has(eq)) continue;
+
+        dayCols.forEach(({ colIndex, day }) => {
+          const raw = (cols[colIndex] ?? "").trim();
+          const num = raw === "" ? "" : Number(raw);
+          if (!mStore[day]) mStore[day] = {};
+          if (raw === "" || isNaN(num)) delete mStore[day][eq];
+          else mStore[day][eq] = num;
+        });
+
+        if (!mStore[1]) mStore[1] = {};
+
+        if (serviceDateCol !== -1) {
+          const sdISO = toISODate(cols[serviceDateCol]);
+          if (sdISO) mStore[1][eq + "_serviceDate"] = sdISO;
+          else delete mStore[1][eq + "_serviceDate"];
+        }
+
+        if (serviceHoursCol !== -1) {
+          const shRaw = (cols[serviceHoursCol] ?? "").toString().trim();
+          const shNum = shRaw === "" ? "" : Number(shRaw);
+          if (shRaw === "" || isNaN(shNum)) delete mStore[1][eq + "_hrService"];
+          else mStore[1][eq + "_hrService"] = shNum;
+        }
+
+        if (hourLastCol !== -1) {
+          const hlRaw = (cols[hourLastCol] ?? "").toString().trim();
+          const hlNum = hlRaw === "" ? "" : Number(hlRaw);
+          if (hlRaw === "" || isNaN(hlNum)) delete mStore[1][eq + "_hourLast"];
+          else mStore[1][eq + "_hourLast"] = hlNum;
+        }
+
+        importedRows++;
+      }
+
+      renderDailyEntry();
+      renderMonthGrid();
+      saveAppState(true);
+      showToast(`Imported ${importedRows} rows for ${monthName} ${year}`, "#44cc88");
+    };
+
+    reader.onerror = () => showToast("Error reading CSV file", "#ff5555");
+    reader.readAsText(file);
+  }
+
+  // ────────────────────────────────────────────────
+  // Render Month Grid
+  // ────────────────────────────────────────────────
+  function renderMonthGrid() {
+    const head = $("monthHead");
+    const body = $("monthBody");
+
+    const { monthKey, daysInMonth } = getSelectedMonthInfo();
+    const DAYS = Math.min(daysInMonth, 31);
+    const mStore = ensureMonthStore(monthKey);
+
+    let htmlHead = "<tr><th class='sticky-left'>Equipment</th>";
+    for (let d = 1; d <= DAYS; d++) htmlHead += `<th>${d}</th>`;
+    htmlHead += "<th class='total'>Total</th></tr>";
+    head.innerHTML = htmlHead;
+
+    let htmlBody = "";
+    equipmentGroups.forEach(group => {
+      htmlBody += `
+        <tr class="category-header">
+          <td colspan="${DAYS + 2}">${group.name}</td>
+        </tr>`;
+
+      group.items.forEach(eq => {
+        let rowTotal = 0;
+        let cells = "";
+        for (let d = 1; d <= DAYS; d++) {
+          const val = mStore[d]?.[eq] ?? "";
+          rowTotal += Number(val) || 0;
+          cells += `<td><input type="number" step="0.1" value="${val}" data-day="${d}" data-eq="${eq}"></td>`;
+        }
+        htmlBody += `
+          <tr>
+            <td class="sticky-left">${eq}</td>
+            ${cells}
+            <td class="total">${rowTotal.toFixed(1)}</td>
+          </tr>`;
+      });
+    });
+
+    body.innerHTML = htmlBody;
+
+    body.querySelectorAll("input").forEach(inp => {
+      inp.addEventListener("input", e => {
+        const day = Number(e.target.dataset.day);
+        const eq = e.target.dataset.eq;
+        const val = e.target.value === "" ? "" : Number(e.target.value);
+
+        if (!mStore[day]) mStore[day] = {};
+        if (val === "" || isNaN(val)) delete mStore[day][eq];
+        else mStore[day][eq] = val;
+
+        let sum = 0;
+        body.querySelectorAll(`input[data-eq="${eq}"]`).forEach(i => sum += Number(i.value) || 0);
+        e.target.closest("tr").lastElementChild.textContent = sum.toFixed(1);
+      });
+    });
+  }
+
+  // ────────────────────────────────────────────────
+  // Render Daily Entry
+  // ────────────────────────────────────────────────
+  function renderDailyEntry() {
+    const body = $("dailyBody");
+    const date = $("workDate").value || currentDate;
+
+    const { monthKey } = getSelectedMonthInfo();
+    const { store: dayStore } = getDayStore(date);
+    const mStore = ensureMonthStore(monthKey);
+
+    let html = "";
+
+    equipmentGroups.forEach(group => {
+      html += `
+        <tr class="category-header">
+          <td colspan="8">${group.name}</td>
+        </tr>`;
+
+      group.items.forEach(eq => {
+        const worked = dayStore?.[eq] ?? "";
+
+        const serviceDate =
+          dayStore?.[eq + "_serviceDate"] ??
+          mStore?.[1]?.[eq + "_serviceDate"] ??
+          "";
+
+        const service =
+          dayStore?.[eq + "_hrService"] ??
+          mStore?.[1]?.[eq + "_hrService"] ??
+          "";
+
+        const initialSaved = dayStore?.[eq + "_initial"];
+        const initialUI = (initialSaved === undefined || initialSaved === null) ? "" : Number(initialSaved);
+
+        const finalSaved = dayStore?.[eq + "_final"];
+        const finDefault =
+          (finalSaved === undefined || finalSaved === null)
+            ? ((Number(worked) || 0) + (Number(initialUI) || 0))
+            : Number(finalSaved);
+
+        html += `
+          <tr data-eq="${eq}">
+            <td class="sticky-left">${eq}</td>
+            <td>${date}</td>
+            <td><input type="number" step="0.1" value="${service}" class="hr-service" data-orig="${service}"></td>
+            <td><input type="date" value="${serviceDate}" class="hr-service-date" data-orig="${serviceDate}"></td>
+            <td><input type="number" step="0.1" value="${initialUI}" class="initial" data-orig="${initialUI}"></td>
+            <td><input type="number" step="0.1" value="${finDefault}" class="final" data-orig="${finDefault}"></td>
+            <td class="worked">${(Number(worked) || 0).toFixed(1)}</td>
+            <td>
+              <button class="btn-copy" data-action="copy-final" type="button">Copy Final → Initial</button>
+              <button class="btn-delete" data-action="delete-eq" type="button" title="Delete this equipment">×</button>
+            </td>
+          </tr>`;
+      });
+    });
+
+    body.innerHTML = html;
+
+    // Mark inputs dirty only when changed by user
+    body.querySelectorAll("input").forEach(inp => {
+      const mark = () => {
+        const orig = (inp.dataset.orig ?? "");
+        const now  = (inp.value ?? "");
+        inp.dataset.dirty = (String(orig) === String(now)) ? "" : "1";
+      };
+      inp.addEventListener("input", mark, { passive: true });
+      inp.addEventListener("change", mark, { passive: true });
+    });
+
+    // Final input recalculates worked using initial
+    body.querySelectorAll(".final").forEach(inp => {
+      inp.addEventListener("input", e => {
+        const tr = e.target.closest("tr");
+        const init = Number(tr.querySelector(".initial").value) || 0;
+        const fin = Number(e.target.value) || 0;
+        tr.querySelector(".worked").textContent = (fin - init).toFixed(1);
+      });
+    });
+
+    // Initial change recalculates worked
+    body.querySelectorAll(".initial").forEach(inp => {
+      inp.addEventListener("input", e => {
+        const tr = e.target.closest("tr");
+        const init = Number(e.target.value) || 0;
+        const fin = Number(tr.querySelector(".final").value) || 0;
+        tr.querySelector(".worked").textContent = (fin - init).toFixed(1);
+      });
+    });
+
+    // Copy Final → Initial saves only for this day
+    body.querySelectorAll("[data-action='copy-final']").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const tr = e.target.closest("tr");
+        const eq = tr.dataset.eq;
+
+        const finalVal = Number(tr.querySelector(".final").value) || 0;
+
+        const initInp = tr.querySelector(".initial");
+        initInp.value = finalVal.toFixed(1);
+        tr.querySelector(".worked").textContent = "0.0";
+
+        initInp.dataset.dirty = "1";
+
+        const dateStr = $("workDate").value || currentDate;
+        const { store } = getDayStore(dateStr);
+        store[eq + "_initial"] = finalVal;
+
+        initInp.dataset.orig = initInp.value;
+        initInp.dataset.dirty = "";
+
+        saveAppState(true);
+        showToast("Initial saved for this day", "#88ffaa");
+      });
+    });
+
+    // Delete equipment (remove from all months/days)
+    body.querySelectorAll("[data-action='delete-eq']").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const tr = e.target.closest("tr");
+        const eq = tr.dataset.eq;
+        if (!confirm(`Delete equipment "${eq}" completely?\nThis removes it from all months/days.`)) return;
+
+        for (let group of equipmentGroups) {
+          const idx = group.items.indexOf(eq);
+          if (idx !== -1) {
+            group.items.splice(idx, 1);
+            break;
+          }
+        }
+
+        Object.keys(monthData).forEach(mk => {
+          const ms = monthData[mk];
+          if (!ms || typeof ms !== "object") return;
+          Object.keys(ms).forEach(dk => {
+            const ds = ms[dk];
+            if (!ds || typeof ds !== "object") return;
+            delete ds[eq];
+            delete ds[eq + "_serviceDate"];
+            delete ds[eq + "_hrService"];
+            delete ds[eq + "_hourLast"];
+            delete ds[eq + "_initial"];
+            delete ds[eq + "_final"];
+          });
+        });
+
+        renderDailyEntry();
+        renderMonthGrid();
+        saveAppState(true);
+        showToast(`Equipment "${eq}" deleted`, "#ffaa44");
+      });
+    });
+  }
+
+  // ────────────────────────────────────────────────
+  // Add Equipment Modal
+  // ────────────────────────────────────────────────
+  const modal = $("addModal");
+  const btnAdd = $("btnAddEquipment");
+  const btnCancel = $("btnCancelAdd");
+  const btnConfirm = $("btnConfirmAdd");
+
+  btnAdd.onclick = () => { modal.style.display = "flex"; };
+  btnCancel.onclick = () => { modal.style.display = "none"; };
+
+  btnConfirm.onclick = () => {
+    const name = $("newEquipName").value.trim();
+    const catIdx = Number($("newEquipCategory").value);
+
+    if (!name) { showToast("Please enter equipment name", "#ffaa44"); return; }
+    if (getFlatEquipments().includes(name)) { showToast("Equipment already exists", "#ff5555"); return; }
+    if (!equipmentGroups[catIdx]) { showToast("Invalid category", "#ff5555"); return; }
+
+    equipmentGroups[catIdx].items.push(name);
+    modal.style.display = "none";
+    $("newEquipName").value = "";
+
+    renderDailyEntry();
+    renderMonthGrid();
+    saveAppState(true);
+    showToast(`Added ${name} to ${equipmentGroups[catIdx].name}`, "#44cc88");
+  };
+
+  // ────────────────────────────────────────────────
+  // Load / Save Day
+  // ────────────────────────────────────────────────
+  $("btnLoadDay").onclick = () => {
+    currentDate = $("workDate").value;
+    renderDailyEntry();
+    renderMonthGrid();
+    showToast("Loaded day " + currentDate, "#a0c0ff");
+  };
+
+  $("btnSaveDay").onclick = () => {
+    const dateStr = $("workDate").value || currentDate;
+    const { store: todayStore } = getDayStore(dateStr);
+
+    const rows = $("dailyBody").querySelectorAll("tr[data-eq]");
+
+    rows.forEach(row => {
+      const eq = row.dataset.eq;
+
+      const serviceInp = row.querySelector(".hr-service");
+      const serviceDateInp = row.querySelector(".hr-service-date");
+      const initInp = row.querySelector(".initial");
+      const finalInp = row.querySelector(".final");
+
+      const initDirty  = initInp?.dataset.dirty === "1";
+      const finalDirty = finalInp?.dataset.dirty === "1";
+      const svcDirty   = serviceInp?.dataset.dirty === "1";
+      const sdDirty    = serviceDateInp?.dataset.dirty === "1";
+
+      // Always save worked so month grid updates
+      const worked = Number(row.querySelector(".worked").textContent) || 0;
+      todayStore[eq] = worked;
+
+      if (initDirty) {
+        const raw = initInp.value;
+        const num = raw === "" ? "" : Number(raw);
+        if (raw === "" || isNaN(num)) delete todayStore[eq + "_initial"];
+        else todayStore[eq + "_initial"] = num;
+
+        initInp.dataset.orig = initInp.value;
+        initInp.dataset.dirty = "";
+      }
+
+      if (finalDirty) {
+        const raw = finalInp.value;
+        const num = raw === "" ? "" : Number(raw);
+        if (raw === "" || isNaN(num)) delete todayStore[eq + "_final"];
+        else todayStore[eq + "_final"] = num;
+
+        finalInp.dataset.orig = finalInp.value;
+        finalInp.dataset.dirty = "";
+      }
+
+      if (svcDirty) {
+        const raw = serviceInp.value;
+        const num = raw === "" ? "" : Number(raw);
+        if (raw === "" || isNaN(num)) delete todayStore[eq + "_hrService"];
+        else todayStore[eq + "_hrService"] = num;
+
+        serviceInp.dataset.orig = serviceInp.value;
+        serviceInp.dataset.dirty = "";
+      }
+
+      if (sdDirty) {
+        const sd = serviceDateInp.value || "";
+        if (sd) todayStore[eq + "_serviceDate"] = sd;
+        else delete todayStore[eq + "_serviceDate"];
+
+        serviceDateInp.dataset.orig = serviceDateInp.value;
+        serviceDateInp.dataset.dirty = "";
+      }
+    });
+
+    renderMonthGrid();
+    saveAppState(true);
+    showToast("Day saved", "#44cc88");
+  };
+
+  $("btnSaveAll").onclick = () => {
+    const dateStr = $("workDate").value || currentDate;
+
+    const { store: todayStore } = getDayStore(dateStr);
+    const nextDateStr = nextISODate(dateStr);
+    const { store: nextStore } = getDayStore(nextDateStr);
+
+    const rows = $("dailyBody").querySelectorAll("tr[data-eq]");
+
+    rows.forEach(row => {
+      const eq = row.dataset.eq;
+
+      const serviceInp = row.querySelector(".hr-service");
+      const serviceDateInp = row.querySelector(".hr-service-date");
+      const initInp = row.querySelector(".initial");
+      const finalInp = row.querySelector(".final");
+
+      const initDirty  = initInp?.dataset.dirty === "1";
+      const finalDirty = finalInp?.dataset.dirty === "1";
+      const svcDirty   = serviceInp?.dataset.dirty === "1";
+      const sdDirty    = serviceDateInp?.dataset.dirty === "1";
+
+      if (initDirty || finalDirty) {
+        const worked = Number(row.querySelector(".worked").textContent) || 0;
+        todayStore[eq] = worked;
+      }
+
+      if (initDirty) {
+        const raw = initInp.value;
+        const num = raw === "" ? "" : Number(raw);
+        if (raw === "" || isNaN(num)) delete todayStore[eq + "_initial"];
+        else todayStore[eq + "_initial"] = num;
+
+        initInp.dataset.orig = initInp.value;
+        initInp.dataset.dirty = "";
+      }
+
+      if (finalDirty) {
+        const raw = finalInp.value;
+        const num = raw === "" ? "" : Number(raw);
+        if (raw === "" || isNaN(num)) delete todayStore[eq + "_final"];
+        else todayStore[eq + "_final"] = num;
+
+        finalInp.dataset.orig = finalInp.value;
+        finalInp.dataset.dirty = "";
+      }
+
+      if (svcDirty) {
+        const raw = serviceInp.value;
+        const num = raw === "" ? "" : Number(raw);
+        if (raw === "" || isNaN(num)) delete todayStore[eq + "_hrService"];
+        else todayStore[eq + "_hrService"] = num;
+
+        serviceInp.dataset.orig = serviceInp.value;
+        serviceInp.dataset.dirty = "";
+      }
+
+      if (sdDirty) {
+        const sd = serviceDateInp.value || "";
+        if (sd) todayStore[eq + "_serviceDate"] = sd;
+        else delete todayStore[eq + "_serviceDate"];
+
+        serviceDateInp.dataset.orig = serviceDateInp.value;
+        serviceDateInp.dataset.dirty = "";
+      }
+
+      // Copy Final → Next day Initial (if empty)
+      const finalVal = Number(finalInp.value) || 0;
+      if (nextStore[eq + "_initial"] === undefined) {
+        nextStore[eq + "_initial"] = finalVal;
+      }
+    });
+
+    saveAppState(true);
+    showToast("Saved (last modified) + copied Final → next Initial (if empty)", "#44cc88");
+  };
+
+  // CSV Buttons
+  $("btnExportCSV").onclick = exportMonthlyCSV;
+  $("fileImportCSV").onchange = e => {
+    const file = e.target.files[0];
+    if (file) importMonthlyCSV(file);
+    e.target.value = "";
+  };
+
+  // Sign out
+  $("btnSignOut").onclick = () => {
+    if (window.__fb?.api?.signOut) window.__fb.api.signOut(window.__fb.auth);
+  };
+
+  // Base render (before login)
+  renderMonthGrid();
+  renderDailyEntry();
+
+  // Load cloud data after login change
+  window.addEventListener("equipHours:userChanged", async () => {
+    const ok = await loadAppState();
+    renderMonthGrid();
+    renderDailyEntry();
+    showToast(ok ? "Loaded cloud data" : "No cloud data yet (using defaults)", ok ? "#a0c0ff" : "#ffaa44");
+  });
+
+  </script>
+</div>
+
+<!-- AUTH SCRIPT (Firebase Auth + PIN stored in RTDB) -->
+<script>
+(() => {
+  const REMEMBER_USER_KEY = "equipHoursRememberUser";
+
+  function fb() { return window.__fb; }
+  function api() { return window.__fb.api; }
+
+  function unameToEmail(username) {
+    const safe = (username || "").trim().toLowerCase().replace(/[^a-z0-9._-]/g, "_");
+    return `${safe}@equip-hours.local`;
+  }
+
+  function showLogin(message = "", color = "#ffdd88") {
+    document.getElementById("loginRoot").style.display = "flex";
+    document.getElementById("appRoot").style.display = "none";
+
+    const err = document.getElementById("loginError");
+    err.textContent = message;
+    err.style.color = color;
+
+    const rememberedUser = localStorage.getItem(REMEMBER_USER_KEY) || "";
+    document.getElementById("loginUser").value = rememberedUser;
+    document.getElementById("loginPass").value = "";
+    document.getElementById("rememberMe").checked = !!rememberedUser;
+
+    setTimeout(() => document.getElementById("loginUser").focus(), 50);
+  }
+
+  function showApp() {
+    document.getElementById("loginRoot").style.display = "none";
+    document.getElementById("appRoot").style.display = "block";
+    window.dispatchEvent(new CustomEvent("equipHours:userChanged"));
+  }
+
+  function initAuth() {
+    api().onAuthStateChanged(fb().auth, (user) => {
+      if (user) showApp();
+      else showLogin();
+    });
+
+    // LOGIN
+    document.getElementById("btnLogin").onclick = async () => {
+      const u = document.getElementById("loginUser").value.trim();
+      const p = document.getElementById("loginPass").value;
+      const remember = document.getElementById("rememberMe")?.checked;
+
+      const usersMsg = document.getElementById("loginError");
+      usersMsg.textContent = "";
+
+      if (!u || !p) {
+        usersMsg.textContent = "Enter username and password.";
+        usersMsg.style.color = "#ffdd88";
+        return;
+      }
+
+      try {
+        await api().setPersistence(
+          fb().auth,
+          remember ? api().browserLocalPersistence : api().browserSessionPersistence
+        );
+
+        const email = unameToEmail(u);
+        await api().signInWithEmailAndPassword(fb().auth, email, p);
+
+        if (remember) localStorage.setItem(REMEMBER_USER_KEY, u);
+        else localStorage.removeItem(REMEMBER_USER_KEY);
+
+        showApp();
+      } catch {
+        usersMsg.textContent = "Invalid username or password.";
+        usersMsg.style.color = "#ffdd88";
+      }
+    };
+
+    document.getElementById("loginPass").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("btnLogin").click();
+    });
+    document.getElementById("loginUser").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("btnLogin").click();
+    });
+
+    // REGISTER
+    const registerModal = document.getElementById("registerModal");
+    document.getElementById("btnOpenRegister").onclick = () => {
+      document.getElementById("regUser").value = "";
+      document.getElementById("regPass").value = "";
+      document.getElementById("regPin").value  = "";
+      document.getElementById("regMsg").textContent = "";
+      registerModal.style.display = "flex";
+      setTimeout(() => document.getElementById("regUser").focus(), 50);
+    };
+    document.getElementById("btnCancelRegister").onclick = () => registerModal.style.display = "none";
+
+    document.getElementById("btnConfirmRegister").onclick = async () => {
+      const u = document.getElementById("regUser").value.trim();
+      const p = document.getElementById("regPass").value;
+      const pin = document.getElementById("regPin").value.trim();
+      const msg = document.getElementById("regMsg");
+
+      if (!u || u.length < 3) { msg.textContent = "Username must be at least 3 characters."; return; }
+      if (!p || p.length < 4) { msg.textContent = "Password must be at least 4 characters."; return; }
+      if (!/^\d{4,8}$/.test(pin)) { msg.textContent = "Recovery PIN must be 4–8 digits."; return; }
+
+      try {
+        const email = unameToEmail(u);
+        const cred = await api().createUserWithEmailAndPassword(fb().auth, email, p);
+        const uid = cred.user.uid;
+
+        // store pin in RTDB under /equipHoursPins/<uid>
+        await api().set(api().ref(fb().db, `equipHoursPins/${uid}`), { pin });
+
+        // sign out after register
+        await api().signOut(fb().auth);
+
+        registerModal.style.display = "none";
+        showLogin("User registered. You can login now.", "#44cc88");
+      } catch {
+        msg.textContent = "Registration failed (user may already exist).";
+      }
+    };
+
+    // RESET (uses Cloud Function resetPasswordWithPin)
+    const resetModal = document.getElementById("resetModal");
+    document.getElementById("btnOpenReset").onclick = () => {
+      document.getElementById("resetUser").value = "";
+      document.getElementById("resetPin").value  = "";
+      document.getElementById("resetNewPass").value = "";
+      document.getElementById("resetMsg").textContent = "";
+      resetModal.style.display = "flex";
+      setTimeout(() => document.getElementById("resetUser").focus(), 50);
+    };
+    document.getElementById("btnCancelReset").onclick = () => resetModal.style.display = "none";
+
+    document.getElementById("btnConfirmReset").onclick = async () => {
+      const u = document.getElementById("resetUser").value.trim();
+      const pin = document.getElementById("resetPin").value.trim();
+      const newPass = document.getElementById("resetNewPass").value;
+      const msg = document.getElementById("resetMsg");
+
+      if (!u) { msg.textContent = "User not found."; return; }
+      if (!/^\d{4,8}$/.test(pin)) { msg.textContent = "Invalid Recovery PIN."; return; }
+      if (!newPass || newPass.length < 4) { msg.textContent = "New password must be at least 4 characters."; return; }
+
+      try {
+        const fn = api().httpsCallable(fb().functions, "resetPasswordWithPin");
+        await fn({ username: u, pin, newPassword: newPass });
+
+        resetModal.style.display = "none";
+        showLogin("Password reset successful. Please login.", "#44cc88");
+      } catch {
+        msg.textContent = "Reset failed. Check username/PIN.";
+      }
+    };
+
+    window.addEventListener("click", (e) => {
+      if (e.target === registerModal) registerModal.style.display = "none";
+      if (e.target === resetModal) resetModal.style.display = "none";
+    });
+  }
+
+  // Wait Firebase SDK ready
+  if (window.__fb && window.__fb.api) initAuth();
+  else window.addEventListener("firebase-ready", initAuth, { once: true });
+})();
+</script>
+
+
+<!-- ✅ PWA: Service Worker Registration -->
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register('/DAILY-HOURS-LMP-EQUIPMENT-HOURS-PWA-APP/service-worker.js', { scope: '/DAILY-HOURS-LMP-EQUIPMENT-HOURS-PWA-APP/' })
+        .catch(err => console.warn("SW registration failed:", err));
+    });
+  }
+</script>
+
+
+<script>
+  // Android/Chrome/Edge PWA install handler
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('btnInstallApp');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.style.display = 'inline-block';
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      try {
+        const choice = await deferredPrompt.userChoice;
+        console.log('Install choice:', choice && choice.outcome);
+      } catch (err) {
+        console.warn('Install prompt error:', err);
+      }
+      deferredPrompt = null;
+      installBtn.style.display = 'none';
+    });
+  }
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    if (installBtn) installBtn.style.display = 'none';
+    console.log('PWA installed');
+  });
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      // CHANGE YOUR-REPO-NAME here too
+      const swPath = "/DAILY-HOURS-LMP-EQUIPMENT-PWA-APP/sw.js";
+      navigator.serviceWorker.register(swPath)
+        .then(reg => console.log("Service Worker registered with scope:", reg.scope))
+        .catch(err => console.warn("Service Worker registration failed:", err));
+    });
+  }
+</script>
+
+</body>
+</html>
